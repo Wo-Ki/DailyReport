@@ -66,7 +66,7 @@ def send(name):
     elif "qq" in MAIL_HOST:
         smtp_obj = smtplib.SMTP_SSL(MAIL_HOST, MAIL_PORT)  # 启用SSL发信
     else:
-        print("Error!!! 没有改邮箱主机")
+        print("Error: 没有改邮箱主机")
         os.remove(name)
         sys.exit()
 
@@ -78,13 +78,18 @@ def send(name):
         print("邮件发送成功 ^_^")
         smtp_obj.quit()
     except smtplib.SMTPException as e:
-        print("邮件发送失败 @_@")
+        print("Error:邮件发送失败 @_@")
         print(e)
     finally:
         smtp_obj.close()
 
 
 if __name__ == "__main__":
+    print("<<< 轻松日报 1.0 Made by Wo-ki >>>")
+
+    if USER_NAME == "" or SENDER == "" or RECEIVE[0] == "" or MALL_PASS == "" or ACC[0] == "" or ACC[1] == "":
+        print("Error:config.py 未完成配置，请配置！！！")
+        sys.exit()
     new_file_name = init()
     input_info(new_file_name)
     r = input("发送邮件？(Y/n):")
