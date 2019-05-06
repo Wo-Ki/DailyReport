@@ -88,9 +88,9 @@ def send(name):
 if __name__ == "__main__":
     print("<<< 轻松日报 1.1 Made by Wo-ki >>>")
 
-    # if USER_NAME == "" or SENDER == "" or RECEIVE[0] == "" or MALL_PASS == "" or ACC[0] == "" or ACC[1] == "":
-    #     print("Error:config.py 未完成配置，请配置！！！")
-    #     sys.exit()
+    if USER_NAME == "" or SENDER == "" or RECEIVE[0] == "" or MALL_PASS == "" or ACC[0] == "" or ACC[1] == "":
+        print("Error:config.py 未完成配置，请配置！！！")
+        sys.exit()
     new_file_name = init()
     input_info(new_file_name)
     r = input("发送邮件？(Y/n):")
