@@ -7,6 +7,8 @@ import time
 from config import *
 import smtplib
 from email.mime.multipart import MIMEMultipart, MIMEBase
+from email.mime.text import MIMEText
+from email.header import Header
 from email import encoders
 import os
 import sys
@@ -39,12 +41,12 @@ def send(name):
     """发送邮件"""
     # 配置邮件信息
     message = MIMEMultipart()
-    message['from'] = SENDER
-    message['to'] = RECEIVE[0]
     message['Cc'] = ",".join(ACC)
     date = time.strftime("%Y%m%d", time.localtime())
     subject = "日报-{}-{}".format(USER_NAME, date)
     message['Subject'] = subject
+    message['From'] = SENDER
+    message['To'] = RECEIVE[0]
 
     # 构造附件 1
     # att = MIMEText(open(name, 'rb').read(), 'base64', 'utf-8')
@@ -54,6 +56,7 @@ def send(name):
     # att["Content-Disposition"] = 'attachment; filename="'+str(name.encode("gb2312"))+'"'
     # message.attach(att)
 
+
     # 构造附件 2 解决附件名有中文问题
     att = MIMEBase('application', 'octet-stream')
     att.set_payload(open(name, 'rb').read())
@@ -61,28 +64,38 @@ def send(name):
     encoders.encode_base64(att)
     message.attach(att)
 
-    # 邮件发送 目前只支持qq和163
-    if "163" in  MAIL_HOST:
-        smtp_obj = smtplib.SMTP()
-    elif "qq" in MAIL_HOST:
-        smtp_obj = smtplib.SMTP_SSL(MAIL_HOST, MAIL_PORT)  # 启用SSL发信
-    else:
-        print("Error: 没有改邮箱主机")
-        os.remove(name)
-        sys.exit()
-
-    try:
-        if "163" in MAIL_HOST:
-            smtp_obj.connect(MAIL_HOST, port=MAIL_PORT)
-        smtp_obj.login(SENDER, MALL_PASS)  # 登录验证
-        smtp_obj.sendmail(SENDER, RECEIVE+ACC , message.as_string())  # 发送
-        print("邮件发送成功 ^_^")
-        smtp_obj.quit()
-    except smtplib.SMTPException as e:
-        print("Error:邮件发送失败 @_@")
-        print(e)
-    finally:
-        smtp_obj.close()
+    while True:
+        try:
+            # 邮件发送 目前只支持qq和163
+            if "163" in  MAIL_HOST:
+                smtp_obj = smtplib.SMTP()
+            elif "qq" in MAIL_HOST:
+                smtp_obj = smtplib.SMTP_SSL(MAIL_HOST, MAIL_PORT)  # 启用SSL发信
+            else:
+                print("Error: 没有改邮箱主机")
+                os.remove(name)
+                sys.exit()
+    
+            if "163" in MAIL_HOST:
+                smtp_obj.connect(MAIL_HOST, port=MAIL_PORT)
+            smtp_obj.login(SENDER, MALL_PASS)  # 登录验证
+            smtp_obj.sendmail(SENDER, RECEIVE+ACC , message.as_string())  # 发送
+            print("邮件发送成功 ^_^")
+            smtp_obj.quit()
+            break
+        except smtplib.SMTPException as e:
+            print("Error:邮件发送失败 @_@")
+            print(e)
+            r = input("重新发送？(Y/n):")
+            while r != 'Y' and r != 'y' and r != 'N' and r != 'n':
+                r = input("请输入Y或者n（不区分大小写）:")
+            if r == "Y" or r == "y":
+                print("正在重新发送。。。")
+            else:
+                print("取消重新发送。。。")
+                break
+        # else:
+        #     smtp_obj.close()
 
 
 if __name__ == "__main__":
